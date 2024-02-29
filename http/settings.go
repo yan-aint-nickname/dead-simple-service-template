@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 type SettingsHttp struct {
@@ -10,6 +9,7 @@ type SettingsHttp struct {
 	Addr string
 	Env string
 	RedisDsn string `mapstructure:"redis_dsn"`
+	RedisExp int64 `mapstructure:"redis_exp"`
 	PostgresDsn string `mapstructure:"postgres_dsn"`
 	SentryDsn string `mapstructure:"sentry_dsn"`
 	// Any other settings below
@@ -35,10 +35,6 @@ func NewSettingsHttp() (settings SettingsHttp, err error) {
 	return
 }
 
-func GetRedisDsn(s SettingsHttp, log *zap.Logger) {
-	log.Warn("REDIS DSN PROVIDED", zap.String("redis dsn", s.RedisDsn))
-}
-
-func GetSentryDsn(s SettingsHttp, log *zap.Logger) {
-	log.Warn("SENTRY DSN PROVIDED", zap.String("sentry dsn", s.SentryDsn))
+func (s SettingsHttp) GetRedisDsn() string {
+	return s.RedisDsn
 }

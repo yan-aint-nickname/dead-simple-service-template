@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 type RouterGroupV1 struct {
@@ -22,10 +21,12 @@ func NewApiV1Router(router *gin.Engine) *RouterGroupV1 {
 	return &RouterGroupV1{v1}
 }
 
-type TodosHandlerGet struct{}
+type TodosHandlerGet struct {
+	Svc *TodosServiceGet
+}
 
-func NewTodosHandlerGet() *TodosHandlerGet {
-	return &TodosHandlerGet{}
+func NewTodosHandlerGet(svc *TodosServiceGet) *TodosHandlerGet {
+	return &TodosHandlerGet{Svc: svc}
 }
 
 func (*TodosHandlerGet) Pattern() string {
@@ -36,10 +37,9 @@ func (*TodosHandlerGet) Method() string {
 	return http.MethodGet
 }
 
-func (*TodosHandlerGet) Service() gin.HandlerFunc {
+func (h *TodosHandlerGet) Service() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		rawId := c.Param("id")
-		todoId, err := strconv.Atoi(rawId)
+		todo, err := h.Svc.Call(c.Param("id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
@@ -47,7 +47,7 @@ func (*TodosHandlerGet) Service() gin.HandlerFunc {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"error": nil,
-				"msg":   fmt.Sprintf("Some test todo id: %d", todoId),
+				"msg":   fmt.Sprintf("Some todo name: %s", todo.Name),
 			})
 		}
 	}
@@ -80,7 +80,7 @@ func (*TodosHandlerPost) Service() gin.HandlerFunc {
 var _ Route = (*TodosHandlerGet)(nil)
 var _ Route = (*TodosHandlerPost)(nil)
 
-func RegisterTodoApi(v1 *RouterGroupV1, routes []Route) {
+func RegisterTodosApi(v1 *RouterGroupV1, routes []Route) {
 	todos := v1.Group("/todos")
 	for _, route := range routes {
 		todos.Handle(route.Method(), route.Pattern(), route.Service())

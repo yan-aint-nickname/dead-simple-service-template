@@ -77,6 +77,8 @@ func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, rout
 }
 
 // NOTE: Invoke for funcs what have no return, they *provide nothing*
+// Returs app state
+// NOTE: Tags works for specifing producers and consumers of values
 func CreateDefaultApp() *fx.App {
 	return fx.New(
 		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
@@ -86,6 +88,9 @@ func CreateDefaultApp() *fx.App {
 			NewSettingsHttp,
 			NewServeMux,
 			NewHttpServer,
+			NewRedisClient,
+			NewTodosService,
+			// TODO: rewrite with routers module
 			fx.Annotate(NewApiV1Router, fx.ResultTags(`name:"ApiV1Router"`)),
 			AsRoute(NewTodosHandlerGet, `group:"todoRoutes"`),
 			AsRoute(NewTodosHandlerPost, `group:"todoRoutes"`),
@@ -94,8 +99,7 @@ func CreateDefaultApp() *fx.App {
 		fx.Invoke(RegisterSentryMiddleware),
 		fx.Invoke(RegisterGinZapLogger),
 		fx.Invoke(func(*http.Server) {}),
-		fx.Invoke(fx.Annotate(RegisterTodoApi, fx.ParamTags(`name:"ApiV1Router"`, `group:"todoRoutes"`))),
-		// TODO: provide way to register redis client/cache warmup
+		fx.Invoke(fx.Annotate(RegisterTodosApi, fx.ParamTags(`name:"ApiV1Router"`, `group:"todoRoutes"`))),
 		// TODO: provide way to register postgres client/use pool
 	)
 }
