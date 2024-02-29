@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"strconv"
 )
 
 type RouterGroupV1 struct {
@@ -22,7 +22,7 @@ func NewApiV1Router(router *gin.Engine) *RouterGroupV1 {
 	return &RouterGroupV1{v1}
 }
 
-type TodosHandlerGet struct {}
+type TodosHandlerGet struct{}
 
 func NewTodosHandlerGet() *TodosHandlerGet {
 	return &TodosHandlerGet{}
@@ -47,13 +47,13 @@ func (*TodosHandlerGet) Service() gin.HandlerFunc {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"error": nil,
-				"msg":    fmt.Sprintf("Some test todo id: %d", todoId),
+				"msg":   fmt.Sprintf("Some test todo id: %d", todoId),
 			})
 		}
 	}
 }
 
-type TodosHandlerPost struct {}
+type TodosHandlerPost struct{}
 
 func NewTodosHandlerPost() *TodosHandlerPost {
 	return &TodosHandlerPost{}
@@ -76,10 +76,13 @@ func (*TodosHandlerPost) Service() gin.HandlerFunc {
 	}
 }
 
+// NOTE: Interface Compliance Verification
+var _ Route = (*TodosHandlerGet)(nil)
+var _ Route = (*TodosHandlerPost)(nil)
+
 func RegisterTodoApi(v1 *RouterGroupV1, routes []Route) {
 	todos := v1.Group("/todos")
 	for _, route := range routes {
 		todos.Handle(route.Method(), route.Pattern(), route.Service())
 	}
 }
-

@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/getsentry/sentry-go v0.27.0
+	github.com/gin-contrib/zap v0.2.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/spf13/viper v1.18.2
 	go.uber.org/fx v1.20.1
@@ -17,7 +18,6 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-contrib/zap v0.2.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.15.3 // indirect
@@ -41,7 +41,6 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.5.0 // indirect
