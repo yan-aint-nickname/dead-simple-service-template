@@ -89,6 +89,7 @@ func CreateDefaultApp() *fx.App {
 			NewServeMux,
 			NewHttpServer,
 			NewRedisClient,
+			NewPostgresPool,
 			NewTodosService,
 			// TODO: rewrite with routers module
 			fx.Annotate(NewApiV1Router, fx.ResultTags(`name:"ApiV1Router"`)),
@@ -100,7 +101,7 @@ func CreateDefaultApp() *fx.App {
 		fx.Invoke(RegisterGinZapLogger),
 		fx.Invoke(func(*http.Server) {}),
 		fx.Invoke(fx.Annotate(RegisterTodosApi, fx.ParamTags(`name:"ApiV1Router"`, `group:"todoRoutes"`))),
-		// TODO: provide way to register postgres client/use pool
+		// TODO: provide way to register kafka client
 	)
 }
 

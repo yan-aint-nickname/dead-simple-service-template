@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"encoding/json"
 )
 
@@ -10,10 +11,11 @@ type Service interface {
 
 type TodosServiceGet struct {
 	Redis *RedisClient
+	Postgres *Postgres
 }
 
-func NewTodosService(redis_client *RedisClient) *TodosServiceGet {
-	return &TodosServiceGet{Redis: redis_client}
+func NewTodosService(redis_client *RedisClient, postgres *Postgres) *TodosServiceGet {
+	return &TodosServiceGet{Redis: redis_client, Postgres: postgres}
 }
 
 type Todo struct {
@@ -23,9 +25,14 @@ type Todo struct {
 
 func (svc TodosServiceGet) Call(todoId string) (todo Todo, err error) {
 	todoRaw, err := svc.Redis.Get(todoId)
+
+	var greeting string
+	err = svc.Postgres.Pool.QueryRow(svc.Postgres.Ctx, "select 'Hello world!'").Scan(&greeting)
+
 	if err != nil {
 		return
 	}
+	fmt.Println("HELLO THERE:", greeting)
 	if err = json.Unmarshal(todoRaw, &todo); err != nil {
 		return
 	}

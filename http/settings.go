@@ -38,3 +38,7 @@ func NewSettingsHttp() (settings SettingsHttp, err error) {
 func (s SettingsHttp) GetRedisDsn() string {
 	return s.RedisDsn
 }
+
+func (s SettingsHttp) GetPostgersDsn() string {
+	return s.PostgresDsn
+}
