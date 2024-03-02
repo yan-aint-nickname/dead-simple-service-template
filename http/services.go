@@ -25,17 +25,20 @@ type Todo struct {
 
 func (svc TodosServiceGet) Call(todoId string) (todo Todo, err error) {
 	todoRaw, err := svc.Redis.Get(todoId)
-
-	var greeting string
-	err = svc.Postgres.Pool.QueryRow(svc.Postgres.Ctx, "select 'Hello world!'").Scan(&greeting)
-
 	if err != nil {
+		err = svc.Postgres.Pool.QueryRow(
+			svc.Postgres.Ctx,
+			"select id, name from todos where id=$1",
+			todoId,
+		).Scan(&todo.Id, &todo.Name)
+		fmt.Println("GOT FROM POSTGRES")
 		return
 	}
-	fmt.Println("HELLO THERE:", greeting)
+
 	if err = json.Unmarshal(todoRaw, &todo); err != nil {
 		return
 	}
+
 	return
 }
 
