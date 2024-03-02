@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 )
 
 type Service interface {
@@ -10,7 +10,7 @@ type Service interface {
 }
 
 type TodosServiceGet struct {
-	Redis *RedisClient
+	Redis    *RedisClient
 	Postgres *Postgres
 }
 
@@ -19,7 +19,7 @@ func NewTodosService(redis_client *RedisClient, postgres *Postgres) *TodosServic
 }
 
 type Todo struct {
-	Id string
+	Id   string
 	Name string
 }
 
@@ -41,7 +41,6 @@ func (svc TodosServiceGet) Call(todoId string) (todo Todo, err error) {
 
 	return
 }
-
 
 // func (svc *TodosService) Set(todo Todo) error {
 // 	todoRaw, err := json.Marshal(todo)

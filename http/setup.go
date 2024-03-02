@@ -57,7 +57,13 @@ func NewServeMux() *gin.Engine {
 }
 
 func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, router *gin.Engine) *http.Server {
-	srv := &http.Server{Addr: settings.Addr, Handler: router}
+	// NOTE: I need to specify timeouts because of gosec G112
+	srv := &http.Server{
+		Addr:         settings.Addr,
+		Handler:      router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			ln, err := net.Listen("tcp", srv.Addr)
@@ -65,8 +71,13 @@ func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, rout
 				return err
 			}
 			log.Info("Starting HTTP server", zap.String("addr", srv.Addr))
-			go srv.Serve(ln)
-			return nil
+
+			// NOTE: need to rewrite
+			errChan := make(chan error)
+			go func() {
+				errChan <- srv.Serve(ln)
+			}()
+			return <-errChan
 		},
 		OnStop: func(ctx context.Context) error {
 			log.Info("Stopping HTTP server")

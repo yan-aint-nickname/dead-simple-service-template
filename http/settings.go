@@ -5,13 +5,13 @@ import (
 )
 
 type SettingsHttp struct {
-	AppName string `mapstructure:"app_name"`
-	Addr string
-	Env string
-	RedisDsn string `mapstructure:"redis_dsn"`
-	RedisExp int64 `mapstructure:"redis_exp"`
+	AppName     string `mapstructure:"app_name"`
+	Addr        string
+	Env         string
+	RedisDsn    string `mapstructure:"redis_dsn"`
+	RedisExp    int64  `mapstructure:"redis_exp"`
 	PostgresDsn string `mapstructure:"postgres_dsn"`
-	SentryDsn string `mapstructure:"sentry_dsn"`
+	SentryDsn   string `mapstructure:"sentry_dsn"`
 	// Any other settings below
 }
 

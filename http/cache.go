@@ -1,16 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
-	"context"
+
 	"github.com/redis/go-redis/v9"
 )
 
 type RedisClient struct {
 	Client *redis.Client
-	Ctx context.Context
-	Exp time.Duration
+	Ctx    context.Context
+	Exp    time.Duration
 }
 
 type IRedis interface {
@@ -25,11 +26,11 @@ func NewRedisClient(s SettingsHttp) (*RedisClient, error) {
 		return &RedisClient{}, err
 	}
 	// NOTE: convert nanoseconds to seconds
-	exp := time.Duration(s.RedisExp*1000*1000*1000)
+	exp := time.Duration(s.RedisExp * 1000 * 1000 * 1000)
 	return &RedisClient{
 		Client: redis.NewClient(opts),
-		Ctx: context.Background(),
-		Exp: exp,
+		Ctx:    context.Background(),
+		Exp:    exp,
 	}, nil
 }
 

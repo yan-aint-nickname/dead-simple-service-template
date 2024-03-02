@@ -3,19 +3,22 @@ package main
 import (
 	"context"
 
-	"go.uber.org/zap"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 )
-
 
 type Postgres struct {
 	Pool *pgxpool.Pool
 	Ctx  context.Context
 }
 
-
 func NewPostgresPool(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp) (*Postgres, error) {
+	// config, err := pgxpool.ParseConfig(settings.GetPostgersDsn())
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// zapLogger := log.Logger()
 	ctx := context.Background()
 	dbpool, err := pgxpool.New(ctx, settings.GetPostgersDsn())
 	if err != nil {
@@ -33,6 +36,6 @@ func NewPostgresPool(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp) (*
 	})
 	return &Postgres{
 		Pool: dbpool,
-		Ctx: ctx,
+		Ctx:  ctx,
 	}, nil
 }
