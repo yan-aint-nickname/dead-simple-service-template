@@ -58,6 +58,7 @@ https://github.com/pressly/goose
 ##### Check migrations status
 
 Plese consider to be in migrations dir or specify it with flag or use envs
+
 `goose --dir=migrations postgres "$POSTGRES_DSN" status`
 
 ### Mongo
@@ -82,18 +83,18 @@ https://github.com/sourcegraph/conc
 
 - https://github.com/uber-go/zap
 - https://github.com/jackc/pgx-zap/tree/master
-- https://github.com/getsentry/sentry-go/blob/master/gin/README.md
-You can throw panics, but should you?
+- https://github.com/getsentry/sentry-go/blob/master/gin/README.md _You can throw panics, but should you?_
 
 ## Tests
 
 
 ## Linting
+
 https://github.com/uber-go/guide/blob/master/style.md#linting
 
 tl;dr
-errcheck to ensure that errors are handled
-goimports to format code and manage imports
-golint to point out common style mistakes
-govet to analyze code for common mistakes
-staticcheck to do various static analysis checks
+
+- errcheck to ensure that errors are handled
+- goimports to format code and manage imports
+- govet to analyze code for common mistakes
+- staticcheck to do various static analysis checks
