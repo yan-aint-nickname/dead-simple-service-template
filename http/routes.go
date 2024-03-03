@@ -42,22 +42,22 @@ func (h *TodosHandlerGet) Service() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		todo, err := h.Svc.Call(c.Param("id"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"error": nil,
-				"msg":   fmt.Sprintf("Some todo name: %s", todo.Name),
-			})
+			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
+			return
 		}
+		c.JSON(http.StatusOK, gin.H{
+			"error": nil,
+			"msg":   todo.Name,
+		})
 	}
 }
 
-type TodosHandlerPost struct{}
+type TodosHandlerPost struct {
+	Svc *TodosServicePost
+}
 
-func NewTodosHandlerPost() *TodosHandlerPost {
-	return &TodosHandlerPost{}
+func NewTodosHandlerPost(svc *TodosServicePost) *TodosHandlerPost {
+	return &TodosHandlerPost{Svc: svc}
 }
 
 func (*TodosHandlerPost) Pattern() string {
@@ -68,11 +68,22 @@ func (*TodosHandlerPost) Method() string {
 	return http.MethodPost
 }
 
-func (*TodosHandlerPost) Service() gin.HandlerFunc {
+func (h *TodosHandlerPost) Service() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		todoNew := Todo{}
+		if err := c.BindJSON(&todoNew); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
+			return
+		}
+		fmt.Println("RIGHT BEFORE", todoNew)
+		todo, err := h.Svc.Call(todoNew)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"error": nil,
-			"msg":   "Some todo added",
+			"msg":   todo.Name,
 		})
 	}
 }

@@ -2,11 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
-type Service interface {
-	Call()
+type Service[T, K any] interface {
+	Call(T) (K, error)
 }
 
 type TodosServiceGet struct {
@@ -14,7 +13,7 @@ type TodosServiceGet struct {
 	Postgres *Postgres
 }
 
-func NewTodosService(redis_client *RedisClient, postgres *Postgres) *TodosServiceGet {
+func NewTodosServiceGet(redis_client *RedisClient, postgres *Postgres) *TodosServiceGet {
 	return &TodosServiceGet{Redis: redis_client, Postgres: postgres}
 }
 
@@ -24,31 +23,64 @@ type Todo struct {
 }
 
 func (svc TodosServiceGet) Call(todoId string) (todo Todo, err error) {
-	todoRaw, err := svc.Redis.Get(todoId)
+	todo, err = svc.getFromCache(todoId)
+
 	if err != nil {
-		err = svc.Postgres.Pool.QueryRow(
+		if err = svc.Postgres.Pool.QueryRow(
 			svc.Postgres.Ctx,
 			"select id, name from todos where id=$1",
 			todoId,
-		).Scan(&todo.Id, &todo.Name)
-		fmt.Println("GOT FROM POSTGRES")
-		return
-	}
-
-	if err = json.Unmarshal(todoRaw, &todo); err != nil {
+		).Scan(&todo.Id, &todo.Name); err != nil {
+			return
+		}
+		errCh := make(chan error)
+		go func() {
+			errCh <- svc.setToCache(todo)
+		}()
+		// NOTE: syntax is such a disaster here, but it is what it is
+		err = <-errCh
 		return
 	}
 
 	return
 }
 
-// func (svc *TodosService) Set(todo Todo) error {
-// 	todoRaw, err := json.Marshal(todo)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if err := svc.Redis.Set(todo.Id, todoRaw); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (svc TodosServiceGet) setToCache(todo Todo) (err error) {
+	todoRaw, err := json.Marshal(todo)
+	if err != nil {
+		return
+	}
+	return svc.Redis.Set(todo.Id, todoRaw)
+}
+
+func (svc TodosServiceGet) getFromCache(todoId string) (todo Todo, err error) {
+	todoRaw, err := svc.Redis.Get(todoId)
+	if err != nil {
+		return
+	}
+	if err = json.Unmarshal(todoRaw, &todo); err != nil {
+		return
+	}
+	return
+}
+
+type TodosServicePost struct {
+	Redis    *RedisClient
+	Postgres *Postgres
+}
+
+func NewTodosServicePost(redis_client *RedisClient, postgres *Postgres) *TodosServicePost {
+	return &TodosServicePost{Redis: redis_client, Postgres: postgres}
+}
+
+func (svc TodosServicePost) Call(todoNew Todo) (todo Todo, err error) {
+	err = svc.Postgres.Pool.QueryRow(
+		svc.Postgres.Ctx,
+		"insert into todos(name) values ($1) returning id, name",
+		todoNew.Name,
+	).Scan(&todo.Id, &todo.Name)
+	return
+}
+
+var _ Service[string, Todo] = (*TodosServiceGet)(nil)
+var _ Service[Todo, Todo] = (*TodosServicePost)(nil)

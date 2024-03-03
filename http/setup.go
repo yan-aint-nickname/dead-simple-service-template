@@ -44,6 +44,10 @@ func RegisterGinZapLogger(app *gin.Engine, logger *zap.Logger) {
 	app.Use(ginzap.RecoveryWithZap(logger, true))
 }
 
+func RegisterGinRecovery(app *gin.Engine) {
+	app.Use(gin.Recovery())
+}
+
 func AsRoute(f any, group string) any {
 	return fx.Annotate(
 		f,
@@ -59,10 +63,9 @@ func NewServeMux() *gin.Engine {
 func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, router *gin.Engine) *http.Server {
 	// NOTE: I need to specify timeouts because of gosec G112
 	srv := &http.Server{
-		Addr:         settings.Addr,
-		Handler:      router,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		Addr:              settings.Addr,
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -72,12 +75,11 @@ func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, rout
 			}
 			log.Info("Starting HTTP server", zap.String("addr", srv.Addr))
 
-			// NOTE: need to rewrite
-			errChan := make(chan error)
-			go func() {
-				errChan <- srv.Serve(ln)
-			}()
-			return <-errChan
+			// NOTE: better approach?
+			// I don't know better way to _not_ handle this error
+			// because I need to recover from panics not shutdown
+			go srv.Serve(ln) // nolint: errcheck
+			return nil
 		},
 		OnStop: func(ctx context.Context) error {
 			log.Info("Stopping HTTP server")
@@ -101,18 +103,19 @@ func CreateDefaultApp() *fx.App {
 			NewHttpServer,
 			NewRedisClient,
 			NewPostgresPool,
-			NewTodosService,
-			// TODO: rewrite with routers module
+			NewTodosServiceGet,
+			NewTodosServicePost,
+			// TODO: rewrite with routers module?
 			fx.Annotate(NewApiV1Router, fx.ResultTags(`name:"ApiV1Router"`)),
 			AsRoute(NewTodosHandlerGet, `group:"todoRoutes"`),
 			AsRoute(NewTodosHandlerPost, `group:"todoRoutes"`),
 			zap.NewExample,
 		),
 		fx.Invoke(RegisterSentryMiddleware),
+		fx.Invoke(RegisterGinRecovery),
 		fx.Invoke(RegisterGinZapLogger),
 		fx.Invoke(func(*http.Server) {}),
 		fx.Invoke(fx.Annotate(RegisterTodosApi, fx.ParamTags(`name:"ApiV1Router"`, `group:"todoRoutes"`))),
-		// TODO: provide way to register kafka client
 	)
 }
 
