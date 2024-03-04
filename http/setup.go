@@ -90,8 +90,8 @@ func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, rout
 }
 
 // NOTE: Invoke for funcs what have no return, they *provide nothing*
-// Returs app state
-// NOTE: Tags works for specifing producers and consumers of values
+// Returns app state
+// NOTE: Tags works for specifying producers and consumers of values
 func CreateDefaultApp() *fx.App {
 	return fx.New(
 		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
@@ -105,10 +105,12 @@ func CreateDefaultApp() *fx.App {
 			NewPostgresPool,
 			NewTodosServiceGet,
 			NewTodosServicePost,
+			NewTodosServiceDelete,
 			// TODO: rewrite with routers module?
 			fx.Annotate(NewApiV1Router, fx.ResultTags(`name:"ApiV1Router"`)),
 			AsRoute(NewTodosHandlerGet, `group:"todoRoutes"`),
 			AsRoute(NewTodosHandlerPost, `group:"todoRoutes"`),
+			AsRoute(NewTodosHandlerDelete, `group:"todoRoutes"`),
 			zap.NewExample,
 		),
 		fx.Invoke(RegisterSentryMiddleware),

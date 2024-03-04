@@ -1,4 +1,5 @@
 # dead-simple-service-template
+
 WIP
 
 ## Setup
@@ -31,9 +32,11 @@ https://github.com/uber-go/zap
 
 ### Worker
 
-#### [Kafka](###Kafka)
+#### Kafka Component
 
-#### Tasks
+[Kafka component](#kafka)
+
+#### Tasks Component
 
 aka scheduler
 
@@ -52,6 +55,7 @@ https://github.com/redis/go-redis
 ### Http Client
 
 ### Postgres
+
 - [x] Pool
 - [ ] Single
 
@@ -60,6 +64,7 @@ https://github.com/redis/go-redis
 https://github.com/jackc/pgx
 
 #### Logs
+
 WIP
 https://github.com/jackc/pgx-zap/tree/master
 
@@ -75,7 +80,7 @@ https://github.com/pressly/goose
 
 ##### Check migrations status
 
-Plese consider to be in migrations dir or specify it with flag or use envs
+Please consider to be in migrations dir or specify it with flag or use envs
 
 `goose --dir=migrations postgres "$POSTGRES_DSN" status`
 
@@ -89,7 +94,7 @@ Plese consider to be in migrations dir or specify it with flag or use envs
 
 https://github.com/uber-go/fx
 
-## Styleguid
+## Styleguide
 
 https://github.com/uber-go/guide/blob/master/style.md
 

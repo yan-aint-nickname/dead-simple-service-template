@@ -8,6 +8,11 @@ type Service[T, K any] interface {
 	Call(T) (K, error)
 }
 
+type Todo struct {
+	Id   string
+	Name string
+}
+
 type TodosServiceGet struct {
 	Redis    *RedisClient
 	Postgres *Postgres
@@ -15,11 +20,6 @@ type TodosServiceGet struct {
 
 func NewTodosServiceGet(redis_client *RedisClient, postgres *Postgres) *TodosServiceGet {
 	return &TodosServiceGet{Redis: redis_client, Postgres: postgres}
-}
-
-type Todo struct {
-	Id   string
-	Name string
 }
 
 func (svc TodosServiceGet) Call(todoId string) (todo Todo, err error) {
@@ -82,5 +82,34 @@ func (svc TodosServicePost) Call(todoNew Todo) (todo Todo, err error) {
 	return
 }
 
+type TodosServiceDelete struct {
+	Redis    *RedisClient
+	Postgres *Postgres
+}
+
+func NewTodosServiceDelete(redis *RedisClient, postgres *Postgres) *TodosServiceDelete {
+	return &TodosServiceDelete{Redis: redis, Postgres: postgres}
+}
+
+func (svc TodosServiceDelete) Call(todoId string) (status string, err error) {
+
+	// TODO: add redis deleting of a given id
+	// errCh := make(chan error)
+	// go func() {
+	// 	errCh <- svc.Redis.Delete(todo)
+	// }()
+	// err = <-errCh
+	// var status string
+
+	commandTag, err := svc.Postgres.Pool.Exec(
+		svc.Postgres.Ctx,
+		"delete from todos where id=$1",
+		todoId,
+	)
+	status = commandTag.String()
+	return
+}
+
 var _ Service[string, Todo] = (*TodosServiceGet)(nil)
 var _ Service[Todo, Todo] = (*TodosServicePost)(nil)
+var _ Service[string, string] = (*TodosServiceDelete)(nil)

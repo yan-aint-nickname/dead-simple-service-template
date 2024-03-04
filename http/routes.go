@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -75,7 +74,6 @@ func (h *TodosHandlerPost) Service() gin.HandlerFunc {
 			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
 			return
 		}
-		fmt.Println("RIGHT BEFORE", todoNew)
 		todo, err := h.Svc.Call(todoNew)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
@@ -88,9 +86,40 @@ func (h *TodosHandlerPost) Service() gin.HandlerFunc {
 	}
 }
 
+type TodosHandlerDelete struct {
+	Svc *TodosServiceDelete
+}
+
+func NewTodosHandlerDelete(svc *TodosServiceDelete) *TodosHandlerDelete {
+	return &TodosHandlerDelete{Svc: svc}
+}
+
+func (*TodosHandlerDelete) Pattern() string {
+	return "/:id"
+}
+
+func (*TodosHandlerDelete) Method() string {
+	return http.MethodDelete
+}
+
+func (h *TodosHandlerDelete) Service() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		idDel, err := h.Svc.Call(c.Param("id"))
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"error": nil,
+			"msg":   idDel,
+		})
+	}
+}
+
 // NOTE: Interface Compliance Verification
 var _ Route = (*TodosHandlerGet)(nil)
 var _ Route = (*TodosHandlerPost)(nil)
+var _ Route = (*TodosHandlerDelete)(nil)
 
 func RegisterTodosApi(v1 *RouterGroupV1, routes []Route) {
 	todos := v1.Group("/todos")
