@@ -14,13 +14,12 @@ type Postgres struct {
 }
 
 func NewPostgresPool(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp) (*Postgres, error) {
-	// config, err := pgxpool.ParseConfig(settings.GetPostgersDsn())
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// zapLogger := log.Logger()
+	config, err := pgxpool.ParseConfig(settings.GetPostgersDsn())
+	if err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
-	dbpool, err := pgxpool.New(ctx, settings.GetPostgersDsn())
+	dbpool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return nil, err
 	}

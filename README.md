@@ -67,6 +67,7 @@ https://github.com/jackc/pgx
 
 WIP
 https://github.com/jackc/pgx-zap/tree/master
+Haven't figured out how tracer interface works yet
 
 #### Migrations
 
