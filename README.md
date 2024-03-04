@@ -1,6 +1,24 @@
 # dead-simple-service-template
 WIP
 
+## Setup
+
+This project uses go workspaces
+
+### Start working
+
+Add module to your workspace
+
+```bash
+go work init ./http
+```
+
+Run module
+
+```bash
+go run ./http
+```
+
 ## Components
 
 ### Http Server
@@ -13,7 +31,7 @@ https://github.com/uber-go/zap
 
 ### Worker
 
-#### Kafka (#Kafka)
+#### [Kafka](###Kafka)
 
 #### Tasks
 
