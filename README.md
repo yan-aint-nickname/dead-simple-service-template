@@ -87,9 +87,9 @@ Please consider to be in migrations dir or specify it with flag or use envs
 
 ### Mongo
 
-#### Driver?
+#### Driver
 
-#### Migrations?
+https://pkg.go.dev/go.mongodb.org/mongo-driver/mongo
 
 ## App State
 
@@ -122,3 +122,9 @@ tl;dr
 - goimports to format code and manage imports
 - govet to analyze code for common mistakes
 - staticcheck to do various static analysis checks
+
+
+## Pre-commit
+
+Install pre-commit
+`brew install pre-commit`
