@@ -92,8 +92,9 @@ func NewHttpServer(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp, rout
 // NOTE: Invoke for funcs what have no return, they *provide nothing*
 // Returns app state
 // NOTE: Tags works for specifying producers and consumers of values
-func CreateDefaultApp() *fx.App {
-	return fx.New(
+// NOTE: Function returns an fx.Option type because it's easier to test
+func CreateDefaultApp() fx.Option {
+	return fx.Options(
 		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: log}
 		}),
@@ -121,6 +122,6 @@ func CreateDefaultApp() *fx.App {
 	)
 }
 
-func RunApp(app *fx.App) {
-	app.Run()
+func RunApp(app fx.Option) {
+	fx.New(app).Run()
 }

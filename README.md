@@ -65,7 +65,7 @@ https://github.com/jackc/pgx
 
 #### Logs
 
-WIP
+HOLD
 https://github.com/jackc/pgx-zap/tree/master
 Haven't figured out how tracer interface works yet
 
@@ -95,6 +95,8 @@ https://pkg.go.dev/go.mongodb.org/mongo-driver/mongo
 
 https://github.com/uber-go/fx
 
+Good article RUS https://habr.com/ru/companies/kaspersky/articles/699994/
+
 ## Styleguide
 
 https://github.com/uber-go/guide/blob/master/style.md
@@ -111,6 +113,15 @@ https://github.com/sourcegraph/conc
 
 ## Tests
 
+WIP
+
+I prefer tests in other module/directory but here it's not sutable
+
+```bash
+go test ./http
+```
+
+testcontainers WIP
 
 ## Linting
 
