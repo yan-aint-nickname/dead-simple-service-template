@@ -1,37 +1,32 @@
 package main
 
 import (
-	"fmt"
 	"context"
 	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
+	"github.com/testcontainers/testcontainers-go/modules/redis"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 	"testing"
 )
 
 type RedisContainer struct {
-	testcontainers.Container
+	Container *redis.RedisContainer
 	Endpoint string
 }
 
 func newRedisContainer(l *fxtest.Lifecycle) (*RedisContainer, error) {
 	ctx := context.Background()
-	req := testcontainers.ContainerRequest{
-		Image:        "redis:6-alpine",
-		ExposedPorts: []string{"6379/tcp"},
-		WaitingFor:   wait.ForLog("Ready to accept connections"),
-	}
+	redisC, err := redis.RunContainer(
+		ctx,
+		testcontainers.WithImage("redis:6-alpine"),
+		redis.WithLogLevel(redis.LogLevelVerbose),
+	)
 
-	redisC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
 	if err != nil {
 		return nil, err
 	}
 
-	endpoint, err := redisC.Endpoint(ctx, "")
+	endpoint, err := redisC.ConnectionString(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +37,6 @@ func newRedisContainer(l *fxtest.Lifecycle) (*RedisContainer, error) {
 	})
 
 	return &RedisContainer{Container: redisC, Endpoint: endpoint}, nil
-}
-
-func newTestSettingsHttp(rc *RedisContainer) (*SettingsHttp, error) {
-	endpoint := fmt.Sprintf("redis://%s", rc.Endpoint)
-	return &SettingsHttp{RedisDsn: endpoint}, nil
 }
 
 func newTestRedisClient(s *SettingsHttp) (*RedisClient, error) {
@@ -68,7 +58,8 @@ func newRedisTestOption() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			newRedisContainer,
-			newTestSettingsHttp,
+			func() *PostgresContainer {return nil},
+			NewTestSettingsHttp,
 			newTestRedisClient,
 		),
 	)

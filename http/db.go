@@ -5,7 +5,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 )
 
 type Postgres struct {
@@ -13,7 +12,7 @@ type Postgres struct {
 	Ctx  context.Context
 }
 
-func NewPostgresPool(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp) (*Postgres, error) {
+func NewPostgresPool(lc fx.Lifecycle, settings SettingsHttp) (*Postgres, error) {
 	config, err := pgxpool.ParseConfig(settings.GetPostgersDsn())
 	if err != nil {
 		return nil, err
@@ -29,7 +28,6 @@ func NewPostgresPool(lc fx.Lifecycle, log *zap.Logger, settings SettingsHttp) (*
 		},
 		OnStop: func(ctx context.Context) error {
 			go dbpool.Close()
-			log.Info("Close postgres pool")
 			return nil
 		},
 	})
