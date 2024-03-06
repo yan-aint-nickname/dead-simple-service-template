@@ -21,8 +21,12 @@ func NewApiV1Router(router *gin.Engine) *RouterGroupV1 {
 	return &RouterGroupV1{v1}
 }
 
+// NOTE: I don't know which is better
+// Svc *TodosServiceGet tight bonding
+// Svc Service[string, Todo] tight bonding also? Because I specify in and out types
+// But at least developer will know that Svc has method `Call`
 type TodosHandlerGet struct {
-	Svc *TodosServiceGet
+	Svc Service[string, Todo]
 }
 
 func NewTodosHandlerGet(svc *TodosServiceGet) *TodosHandlerGet {
@@ -51,8 +55,9 @@ func (h *TodosHandlerGet) Service() gin.HandlerFunc {
 	}
 }
 
+// NOTE: see TodoHanlderGet
 type TodosHandlerPost struct {
-	Svc *TodosServicePost
+	Svc Service[Todo, Todo]
 }
 
 func NewTodosHandlerPost(svc *TodosServicePost) *TodosHandlerPost {
@@ -86,8 +91,9 @@ func (h *TodosHandlerPost) Service() gin.HandlerFunc {
 	}
 }
 
+// NOTE: see TodoHanlderGet
 type TodosHandlerDelete struct {
-	Svc *TodosServiceDelete
+	Svc Service[string, string]
 }
 
 func NewTodosHandlerDelete(svc *TodosServiceDelete) *TodosHandlerDelete {
