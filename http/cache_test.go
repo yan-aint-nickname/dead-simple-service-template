@@ -59,25 +59,32 @@ func newTestRedisClient(s *SettingsHttp) (*RedisClient, error) {
 
 func testRedisConnection(t fxtest.TB, client *RedisClient) {
 	ctx := context.Background()
-
 	if err := client.Client.Ping(ctx).Err(); err != nil {
 		t.Errorf("Redis connection test failed %s", err)
 	}
 }
 
-func TestCacheProvide(t *testing.T) {
-	app := fxtest.New(t,
-		fx.Supply(fx.Annotate(t, fx.As(new(fxtest.TB)))),
+func newRedisTestOption() fx.Option {
+	return fx.Options(
 		fx.Provide(
-			fxtest.NewLifecycle,
 			newRedisContainer,
 			newTestSettingsHttp,
 			newTestRedisClient,
 		),
+	)
+}
+
+func registerCacheTests() fx.Option {
+	return fx.Options(
 		fx.Invoke(testRedisConnection),
 	)
+}
 
-	if err := app.Err(); err != nil {
-		t.Fatal(err)
-	}
+func TestRedisConnection(t *testing.T) {
+	t.Run(
+		"Ping",
+		func (t *testing.T) {
+			NewTestApp(t, newRedisTestOption(), registerCacheTests()).Stop()
+		},
+	)
 }
