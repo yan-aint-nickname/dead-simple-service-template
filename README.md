@@ -54,6 +54,8 @@ https://github.com/redis/go-redis
 
 ### Http Client
 
+https://github.com/dghubble/sling
+
 ### Postgres
 
 - [x] Pool
@@ -93,6 +95,7 @@ https://pkg.go.dev/go.mongodb.org/mongo-driver/mongo
 
 ## App State
 
+DI lib
 https://github.com/uber-go/fx
 
 Good article RUS https://habr.com/ru/companies/kaspersky/articles/699994/
@@ -113,15 +116,11 @@ https://github.com/sourcegraph/conc
 
 ## Tests
 
-WIP
-
 I prefer tests in other module/directory but here it's not sutable
 
 ```bash
 go test ./http
 ```
-
-testcontainers WIP
 
 ## Linting
 
