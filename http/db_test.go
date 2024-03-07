@@ -1,7 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"io"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -14,7 +20,7 @@ import (
 
 type PostgresContainer struct {
 	Container *postgres.PostgresContainer
-	Endpoint string
+	Endpoint  string
 }
 
 func newPostgresContainer(l *fxtest.Lifecycle) (*PostgresContainer, error) {
@@ -26,9 +32,6 @@ func newPostgresContainer(l *fxtest.Lifecycle) (*PostgresContainer, error) {
 	postgresC, err := postgres.RunContainer(
 		ctx,
 		testcontainers.WithImage("postgres:15-alpine"),
-		// TODO: add test data
-		// postgres.WithInitScripts(filepath.Join("testdata", "init-user-db.sh")),
-		// postgres.WithConfigFile(filepath.Join("testdata", "my-postgres.conf")),
 		postgres.WithDatabase(dbName),
 		postgres.WithUsername(dbUser),
 		postgres.WithPassword(dbPassword),
@@ -37,6 +40,9 @@ func newPostgresContainer(l *fxtest.Lifecycle) (*PostgresContainer, error) {
 				WithOccurrence(2).
 				WithStartupTimeout(5*time.Second)),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	endpoint, err := postgresC.ConnectionString(ctx)
 	if err != nil {
@@ -51,7 +57,7 @@ func newPostgresContainer(l *fxtest.Lifecycle) (*PostgresContainer, error) {
 
 	return &PostgresContainer{
 		Container: postgresC,
-		Endpoint: endpoint,
+		Endpoint:  endpoint,
 	}, nil
 }
 
@@ -70,29 +76,61 @@ func testDBPoolConnection(t fxtest.TB, client *Postgres) {
 	}
 }
 
+func testDBMigrationUp(t fxtest.TB, pc *PostgresContainer) {
+	exe, err := exec.LookPath("goose")
+	if err != nil {
+		t.Errorf("goose is missing")
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		t.Errorf("Error getting current directory %s", err)
+	}
+	projectDir := filepath.Dir(pwd)
+	migrationDir := "migrations"
+
+	cmd := exec.Command(
+		exe,
+		fmt.Sprintf("--dir=%s", filepath.Join(projectDir, migrationDir)),
+		"postgres",
+		pc.Endpoint,
+		"up",
+	) // #nosec: G204
+
+	// NOTE: All that thing with stdout and stderr is to catch errors of goose
+	var stdBuffer bytes.Buffer
+	mw := io.MultiWriter(os.Stdout, &stdBuffer)
+
+	cmd.Stdout = mw
+	cmd.Stderr = mw
+
+	if err := cmd.Run(); err != nil {
+		t.Errorf("Postgres migration up test failed %s", err)
+	}
+	t.Logf(stdBuffer.String())
+}
+
 func newPostgresTestOption() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			newPostgresContainer,
-			func() *RedisContainer {return nil},
+			func() *RedisContainer { return nil },
 			NewTestSettingsHttp,
 			newTestDBPool,
 		),
 	)
 }
 
-func registerDBTests() fx.Option {
-	return fx.Options(
-		fx.Invoke(testDBPoolConnection),
-	)
-}
-
-func TestPostgresConnection(t *testing.T) {
+func TestPostgres(t *testing.T) {
 	t.Run(
 		"Ping",
-		func (t *testing.T) {
-			NewTestApp(t, newPostgresTestOption(), registerDBTests()).Stop()
+		func(t *testing.T) {
+			NewTestApp(t, newPostgresTestOption(), fx.Invoke(testDBPoolConnection)).Stop()
+		},
+	)
+	t.Run(
+		"Migrate UP",
+		func(t *testing.T) {
+			NewTestApp(t, newPostgresTestOption(), fx.Invoke(testDBMigrationUp)).Stop()
 		},
 	)
 }
-// TODO: add migration tests

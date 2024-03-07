@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
-	"testing"
 )
 
 type FxTestApp struct {

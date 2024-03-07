@@ -2,16 +2,17 @@ package main
 
 import (
 	"context"
+	"testing"
+
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/redis"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
-	"testing"
 )
 
 type RedisContainer struct {
 	Container *redis.RedisContainer
-	Endpoint string
+	Endpoint  string
 }
 
 func newRedisContainer(l *fxtest.Lifecycle) (*RedisContainer, error) {
@@ -58,7 +59,7 @@ func newRedisTestOption() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			newRedisContainer,
-			func() *PostgresContainer {return nil},
+			func() *PostgresContainer { return nil },
 			NewTestSettingsHttp,
 			newTestRedisClient,
 		),
@@ -74,7 +75,7 @@ func registerCacheTests() fx.Option {
 func TestRedisConnection(t *testing.T) {
 	t.Run(
 		"Ping",
-		func (t *testing.T) {
+		func(t *testing.T) {
 			NewTestApp(t, newRedisTestOption(), registerCacheTests()).Stop()
 		},
 	)
