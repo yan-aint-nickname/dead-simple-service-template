@@ -113,3 +113,24 @@ func (svc TodosServiceDelete) Call(todoId string) (status string, err error) {
 var _ Service[string, Todo] = (*TodosServiceGet)(nil)
 var _ Service[Todo, Todo] = (*TodosServicePost)(nil)
 var _ Service[string, string] = (*TodosServiceDelete)(nil)
+
+
+type ProjectsServiceGet struct {
+	Api *ProjectsAPI
+}
+
+func NewProjectsServiceGet(api *ProjectsAPI) *ProjectsServiceGet {
+	return &ProjectsServiceGet{Api: api}
+}
+
+// I didn't figure out how to pass a "nil" or "empty" type to a function
+// Optional parameters isn't very helpfull :(
+func (svc *ProjectsServiceGet) Call(params map[string]string) ([]Project, error) {
+	projects, err := svc.Api.GetProjects()
+	if err != nil {
+		return []Project{}, err
+	}
+	return projects.Projects, nil
+}
+
+var _ Service[map[string]string, []Project] = (*ProjectsServiceGet)(nil)

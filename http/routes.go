@@ -133,3 +133,43 @@ func RegisterTodosApi(v1 *RouterGroupV1, routes []Route) {
 		todos.Handle(route.Method(), route.Pattern(), route.Service())
 	}
 }
+
+type ProjectsHandlerGet struct {
+	Svc Service[map[string]string, []Project]
+}
+
+func NewProjectsHandlerGet(svc *ProjectsServiceGet) *ProjectsHandlerGet {
+	return &ProjectsHandlerGet{Svc: svc}
+}
+
+func (*ProjectsHandlerGet) Pattern() string {
+	return "/"
+}
+
+func (*ProjectsHandlerGet) Method() string {
+	return http.MethodGet
+}
+
+func (h *ProjectsHandlerGet) Service() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		params := map[string]string{}
+		projects, err := h.Svc.Call(params)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err) // nolint: errcheck
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"error": nil,
+			"data": projects,
+		})
+	}
+}
+
+var _ Route = (*ProjectsHandlerGet)(nil)
+
+func RegisterProjectsApi(v1 *RouterGroupV1, routes []Route) {
+	todos := v1.Group("/projects")
+	for _, route := range routes {
+		todos.Handle(route.Method(), route.Pattern(), route.Service())
+	}
+}

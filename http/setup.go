@@ -104,14 +104,17 @@ func CreateDefaultApp() fx.Option {
 			NewHttpServer,
 			NewRedisClient,
 			NewPostgresPool,
+			NewProjectsAPI,
 			NewTodosServiceGet,
 			NewTodosServicePost,
 			NewTodosServiceDelete,
+			NewProjectsServiceGet,
 			// TODO: rewrite with routers module?
 			fx.Annotate(NewApiV1Router, fx.ResultTags(`name:"ApiV1Router"`)),
 			AsRoute(NewTodosHandlerGet, `group:"todoRoutes"`),
 			AsRoute(NewTodosHandlerPost, `group:"todoRoutes"`),
 			AsRoute(NewTodosHandlerDelete, `group:"todoRoutes"`),
+			AsRoute(NewProjectsHandlerGet, `group:"projectsRoutes"`),
 			zap.NewExample,
 		),
 		fx.Invoke(RegisterSentryMiddleware),
@@ -119,6 +122,7 @@ func CreateDefaultApp() fx.Option {
 		fx.Invoke(RegisterGinZapLogger),
 		fx.Invoke(func(*http.Server) {}),
 		fx.Invoke(fx.Annotate(RegisterTodosApi, fx.ParamTags(`name:"ApiV1Router"`, `group:"todoRoutes"`))),
+		fx.Invoke(fx.Annotate(RegisterProjectsApi, fx.ParamTags(`name:"ApiV1Router"`, `group:"projectsRoutes"`))),
 	)
 }
 

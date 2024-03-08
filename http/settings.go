@@ -5,14 +5,15 @@ import (
 )
 
 type SettingsHttp struct {
-	AppName         string `mapstructure:"app_name"`
-	Addr            string
-	Env             string
-	RedisDsn        string `mapstructure:"redis_dsn"`
-	RedisExp        int64  `mapstructure:"redis_exp"`
-	PostgresDsn     string `mapstructure:"postgres_dsn"`
-	SentryDsn       string `mapstructure:"sentry_dsn"`
-	ProjectsBaseUrl string `mapstructure:"projects_base_url"`
+	AppName            string `mapstructure:"app_name"`
+	Addr               string
+	Env                string
+	RedisDsn           string `mapstructure:"redis_dsn"`
+	RedisExp           int64  `mapstructure:"redis_exp"`
+	PostgresDsn        string `mapstructure:"postgres_dsn"`
+	SentryDsn          string `mapstructure:"sentry_dsn"`
+	ProjectsBaseUrl    string `mapstructure:"projects_base_url"`
+	ProjectsApiTimeout int64  `mapstructure:"projects_api_timeout"`
 }
 
 func NewSettingsHttp() (settings SettingsHttp, err error) {

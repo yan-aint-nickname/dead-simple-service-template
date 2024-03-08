@@ -1,23 +1,38 @@
+// I don't know how to make it more transparent and generic at the same time
+// QUESTION: Need interface?
+//
+//	type APIRequestMaker interface {
+//		Name() string
+//		MakeRequest(method, endpoint string, headers, query_params map[string]string, json map[string]any) (any, error)
+//	}
 package main
 
 import (
-	"github.com/dghubble/sling"
+	"time"
+	"github.com/imroc/req/v3"
 )
 
-
-type ProjectsClientHttp struct {
-	Client *sling.Sling
+type ProjectsAPI struct {
+	Client *req.Client
 }
 
-type HttpClient[T any] interface {
-	MakeRequest(method, endpoint string, requestData any) (T, error)
+type Project struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
-func NewProjectsClient(s SettingsHttp) *ProjectsClientHttp {
-	c := sling.New()
-	c.Base(s.ProjectsBaseUrl)
+type ProjectsResponse struct {
+	Projects []Project `json:"projects"`
+}
 
-	return &ProjectsClientHttp{
-		Client: c,
-	}
+func NewProjectsAPI(s SettingsHttp) *ProjectsAPI {
+	baseUrl := s.ProjectsBaseUrl
+	apiTimeout := time.Duration(s.ProjectsApiTimeout*1000*1000*1000)
+	c := req.C().SetBaseURL(baseUrl).SetTimeout(apiTimeout)
+	return &ProjectsAPI{Client: c}
+}
+
+func (api *ProjectsAPI) GetProjects() (resp ProjectsResponse, err error) {
+	err = api.Client.Get("/projects").Do().UnmarshalJson(&resp)
+	return
 }
