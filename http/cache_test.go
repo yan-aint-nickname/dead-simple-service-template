@@ -40,8 +40,8 @@ func newRedisContainer(l *fxtest.Lifecycle) (*RedisContainer, error) {
 	return &RedisContainer{Container: redisC, Endpoint: endpoint}, nil
 }
 
-func newTestRedisClient(s *SettingsHttp) (*RedisClient, error) {
-	client, err := NewRedisClient(*s)
+func newTestRedisClient(s SettingsHttp) (*RedisClient, error) {
+	client, err := NewRedisClient(s)
 	if err != nil {
 		return nil, err
 	}

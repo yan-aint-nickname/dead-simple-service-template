@@ -3,8 +3,10 @@ package main
 import (
 	"testing"
 
+	"go.uber.org/zap"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
+	"go.uber.org/fx/fxevent"
 )
 
 type FxTestApp struct {
@@ -15,7 +17,10 @@ func NewTestApp(t *testing.T, opts ...fx.Option) *FxTestApp {
 	opts = append(
 		opts,
 		fx.Supply(fx.Annotate(t, fx.As(new(fxtest.TB)))),
-		fx.Provide(fxtest.NewLifecycle),
+		fx.Provide(fxtest.NewLifecycle, zap.NewNop),
+		fx.WithLogger(func(t fxtest.TB) fxevent.Logger {
+			return fxtest.NewTestLogger(t)
+		}),
 	)
 	app := fxtest.New(t, opts...)
 

@@ -168,8 +168,8 @@ func (h *ProjectsHandlerGet) Service() gin.HandlerFunc {
 var _ Route = (*ProjectsHandlerGet)(nil)
 
 func RegisterProjectsApi(v1 *RouterGroupV1, routes []Route) {
-	todos := v1.Group("/projects")
+	projects := v1.Group("/projects")
 	for _, route := range routes {
-		todos.Handle(route.Method(), route.Pattern(), route.Service())
+		projects.Handle(route.Method(), route.Pattern(), route.Service())
 	}
 }

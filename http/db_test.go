@@ -61,8 +61,8 @@ func newPostgresContainer(l *fxtest.Lifecycle) (*PostgresContainer, error) {
 	}, nil
 }
 
-func newTestDBPool(l *fxtest.Lifecycle, s *SettingsHttp) (*Postgres, error) {
-	client, err := NewPostgresPool(l, *s)
+func newTestDBPool(l *fxtest.Lifecycle, s SettingsHttp) (*Postgres, error) {
+	client, err := NewPostgresPool(l, s)
 	if err != nil {
 		return nil, err
 	}
