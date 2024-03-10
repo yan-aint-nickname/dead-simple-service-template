@@ -55,7 +55,7 @@ func (h *TodosHandlerGet) Service() gin.HandlerFunc {
 	}
 }
 
-// NOTE: see TodoHanlderGet
+// NOTE: see TodoHandlerGet
 type TodosHandlerPost struct {
 	Svc Service[Todo, Todo]
 }
@@ -91,7 +91,7 @@ func (h *TodosHandlerPost) Service() gin.HandlerFunc {
 	}
 }
 
-// NOTE: see TodoHanlderGet
+// NOTE: see TodoHandlerGet
 type TodosHandlerDelete struct {
 	Svc Service[string, string]
 }
@@ -160,7 +160,7 @@ func (h *ProjectsHandlerGet) Service() gin.HandlerFunc {
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"error": nil,
-			"data": projects,
+			"data":  projects,
 		})
 	}
 }

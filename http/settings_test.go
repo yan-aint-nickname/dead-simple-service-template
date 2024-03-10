@@ -10,10 +10,10 @@ func NewTestSettingsHttp(rc *RedisContainer, pc *PostgresContainer) (SettingsHtt
 		postgresDsn = pc.Endpoint
 	}
 	return SettingsHttp{
-		RedisDsn: redisDsn,
-		PostgresDsn: postgresDsn,
-		// ProjectsBaseUrl: "http://projects_base_url",
-		ProjectsBaseUrl: "http://localhost:9090",
+		RedisDsn:        redisDsn,
+		PostgresDsn:     postgresDsn,
+		ProjectsBaseUrl: "http://projects_base_url",
+		// ProjectsBaseUrl: "http://localhost:9090",
 		ProjectsApiTimeout: 5,
 	}, nil
 }

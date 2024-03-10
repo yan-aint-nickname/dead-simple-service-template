@@ -3,10 +3,10 @@ package main
 import (
 	"testing"
 
-	"go.uber.org/zap"
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxtest"
 	"go.uber.org/fx/fxevent"
+	"go.uber.org/fx/fxtest"
+	"go.uber.org/zap"
 )
 
 type FxTestApp struct {

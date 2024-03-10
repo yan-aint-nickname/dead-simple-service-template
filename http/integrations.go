@@ -9,6 +9,7 @@ package main
 
 import (
 	"time"
+
 	"github.com/imroc/req/v3"
 )
 
@@ -25,10 +26,14 @@ type ProjectsResponse struct {
 	Projects []Project `json:"projects"`
 }
 
-func NewProjectsAPI(s SettingsHttp) *ProjectsAPI {
+func NewClient() *req.Client {
+	return req.C()
+}
+
+func NewProjectsAPI(s SettingsHttp, c *req.Client) *ProjectsAPI {
 	baseUrl := s.ProjectsBaseUrl
-	apiTimeout := time.Duration(s.ProjectsApiTimeout*1000*1000*1000)
-	c := req.C().SetBaseURL(baseUrl).SetTimeout(apiTimeout)
+	apiTimeout := time.Duration(s.ProjectsApiTimeout * 1000 * 1000 * 1000)
+	c.SetBaseURL(baseUrl).SetTimeout(apiTimeout)
 	return &ProjectsAPI{Client: c}
 }
 

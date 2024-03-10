@@ -116,7 +116,7 @@ https://github.com/sourcegraph/conc
 
 ## Tests
 
-I prefer tests in other module/directory but here it's not sutable
+I prefer tests in other module/directory but here it's not suitable
 
 ```bash
 go test ./http

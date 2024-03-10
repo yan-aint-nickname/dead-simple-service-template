@@ -104,6 +104,7 @@ func CreateDefaultApp() fx.Option {
 			NewHttpServer,
 			NewRedisClient,
 			NewPostgresPool,
+			NewClient,
 			NewProjectsAPI,
 			NewTodosServiceGet,
 			NewTodosServicePost,
